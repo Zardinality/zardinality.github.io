@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Zardinality</title>
+    <description>It seems that we only go backwards</description>
+    <link>http://zardinality.github.io/</link>
+    <atom:link href="http://zardinality.github.io/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Thu, 06 Oct 2016 15:23:28 +0800</pubDate>
+    <lastBuildDate>Thu, 06 Oct 2016 15:23:28 +0800</lastBuildDate>
+    <generator>Jekyll v3.2.1</generator>
+    
+      <item>
+        <title>About GAN (1) interpretation</title>
+        <description>&lt;h3 id=&quot;about-gan-1-interpretation&quot;&gt;About GAN (1) interpretation&lt;/h3&gt;
+&lt;p&gt;test code:&lt;/p&gt;
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;tensorflow&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;tf&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tf&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tensor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dtype&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tf&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;float16&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;&lt;script type=&quot;math/tex&quot;&gt;e^{i\pi} = -1&lt;/script&gt;&lt;/p&gt;
+
+&lt;p&gt;give me a &lt;script type=&quot;math/tex&quot;&gt;\phi&lt;/script&gt;&lt;/p&gt;
+</description>
+        <pubDate>Thu, 06 Oct 2016 00:00:00 +0800</pubDate>
+        <link>http://zardinality.github.io/machine%20learning/2016/10/06/About-GAN-1.html</link>
+        <guid isPermaLink="true">http://zardinality.github.io/machine%20learning/2016/10/06/About-GAN-1.html</guid>
+        
+        
+        <category>Machine Learning</category>
+        
+      </item>
+    
+  </channel>
+</rss>
