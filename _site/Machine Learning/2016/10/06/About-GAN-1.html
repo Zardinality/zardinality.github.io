@@ -6,8 +6,8 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>About GAN (1) interpretation</title>
-  <meta name="description" content="About GAN (1) interpretationtest code:import tensorflow as tfa = tf.tensor([1,2,3], dtype=tf.float16)print(a)">
+  <title>一点 GAN -之一：简述</title>
+  <meta name="description" content="一点 GAN -之一：简述">
   <link href='https://fonts.googleapis.com/css?family=PT+Sans:400,700,400italic,700italic|Source+Sans+Pro:400,700,200,300|Josefin+Sans:400,600,700,300' rel='stylesheet' type='text/css'>
   <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet">
 
@@ -56,23 +56,173 @@
         <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
 
   <header class="post-header">
-    <h1 class="post-title" itemprop="name headline"><a class="post-title-link"  href="/machine%20learning/2016/10/06/About-GAN-1.html">About GAN (1) interpretation</a></h1>
+    <h1 class="post-title" itemprop="name headline"><a class="post-title-link"  href="/machine%20learning/2016/10/06/About-GAN-1.html">一点 GAN -之一：简述</a></h1>
   <center>  <p class="post-meta"><time datetime="2016-10-06T00:00:00+08:00" itemprop="datePublished">Oct 6, 2016</time></p>
     
    </center>
   </header>
 
   <div class="post-content" itemprop="articleBody">
-    <h3 id="about-gan-1-interpretation">About GAN (1) interpretation</h3>
-<p>test code:</p>
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="kn">as</span> <span class="nn">tf</span>
-<span class="n">a</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">float16</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-</code></pre>
-</div>
-<p><script type="math/tex">e^{i\pi} = -1</script></p>
+    <h1 id="gan--">一点 GAN -之一：简述</h1>
 
-<p>give me a <script type="math/tex">\phi</script></p>
+<p>[TOC]</p>
+
+<h3 id="section">一些直觉</h3>
+
+<blockquote>
+  <p>What I cannot create, I do not understand. - Richard Feynman</p>
+</blockquote>
+
+<p>费曼的这句话可谓脍炙人口，而且，不像大多数名人口中说出的名言一样，它相当有道理。学数学的时候，我常有这样的体会。就算你把整本书背过，如果你并不能完完整整地把每个定理的证明，庖丁解牛成直径一厘米的牛肉粒，then eventually your learn nothing 。</p>
+
+<p>这句话的逆否命题显然有相当多的佐证：你了解四则运算法则，理解语法树，所以可以写出程序来 parse 一个算式，进而「创造」一个计算器；你知道🐰兔子的样子，所以你可以纸上勾勒出一只兔子，不管是躺着的还是坐着的，荷兰兔还是垂耳兔，只要你想画一只兔子，那么画出来的都是兔子。</p>
+
+<p><img src="http://xm.xuelema.com/attached/image/20140523/20140523152438_5841.jpg" alt="alt text" /></p>
+
+<blockquote>
+  <p>credit to</p>
+</blockquote>
+
+<p>那么，你的知识里关于兔子的那一部分是什么呢？</p>
+
+<p>没准可以看做是一个函数。</p>
+
+<p>你可以想象成，你是一个「兔子」生成器，而你生成的兔子显然不是一成不变的，因为几乎所有事都可能影响你在下笔时从尾巴或耳朵开始着笔—如果借用计算机的术语，你接受的一切影响在你的内部形成了一个「熵池」，这个「熵池」为你的创作源源不断地提供随机因素—譬如下笔的位置，你想画的兔子种类，是否在吃胡萝卜…这个「熵池」对你的影响，显然是一个概率分布，经过你（一个兔子生成函数）的变换，变成了你生成的兔子的概率分布。</p>
+
+<p>这还没完，大家都会画兔子，但是你们会画皮卡丘吗？</p>
+
+<p><img src="http://ww4.sinaimg.cn/large/0061BuRPgw1f8jji3k6qfj30dw0ni775.jpg" alt="alt text" /></p>
+
+<p>一般人会做的事情：照着教程或者凭空想象-&gt;试着画几笔-&gt;发现不像-&gt;google pikachu-&gt;对着皮卡丘改动自己的画-&gt;就这样吧</p>
+
+<p>总结下来，就是根据真实的样本，不断修改自己的画作，同时修正脑海中的记忆（参数），直到自己画的皮卡丘看起来跟真的差不多为止。</p>
+
+<p>That‘s basically what GAN ( Generative Adverserial Network ) does.</p>
+
+<p>注意，以上的类比绝不准确，任何类比都不准确。但这可能为那些想知道 GAN 在做什么，而又不想看数学的人一个直觉，即：GAN 在用一个 <em>parameterized distribution</em> 逼近真实样本的分布。</p>
+
+<hr />
+
+<h3 id="section-1">一些架构</h3>
+
+<p>GAN 通常分为两个部分，generator ( denoted as $G$ ) ， discriminator (denoted as $D$ ) 。</p>
+
+<p>其中 $G$ 的作用就是通过接收一个 ramdom noise ( often denoted as $z$ )， 来生成一个样本的概率分布 $G(z;\psi)$，其中 $\psi$ 是 $G$ 的参数。$G$ 通常是一个 deconvolution net， 例如 DCGAN 里的 generator 。</p>
+
+<p>而 $D$ 的作用则是一个二分类器，可能的实现有：MLP (vanilla version) ；一个 CNN extractor ，后接一个 sigmoid ；或者一个 autoencoder+重建损失 (in <a href="https://arxiv.org/abs/1609.03126">EBGAN</a>, we will reach it later)  。$D$ 的作用是区别 $G$ 生成的样本与真实样本。我们用 $D(x)$ 代表这个二分类器输出的 $x$ 为正例（真实样本）的概率。</p>
+
+<p>理论上来说，GAN 的训练分两步就够了：</p>
+
+<ul>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>为了用 $G$ 近似真实样本的概率分布，我们首先应该用真实样本和生成样本训练D，以期得到一个可以完美分类真实样本和生成样本的分类器。假设我们训练得到了这个分类器，那么此时D(x)就是x是正例的概率。通过训练，我们实际上得到了$P(c</td>
+          <td>X)$， 其中c为类别（正例或负例）， X为可能的样本。</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>为了得到$P(X</td>
+          <td>c=1)$ , 继续训练 $G$ 来最小化$E_{z∼p_z(z)}(1-P(c=1</td>
+          <td>G(z)))$ 。如果训练完美， 那么此时$G(z), z∼some\ distribution$ 就是$P(X</td>
+          <td>c=1)$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+
+<p>在最初 <em>Ian et all</em> 的 <a href="https://arxiv.org/pdf/1406.2661v1.pdf">Generative Adversarial Nets</a> 里，把 GAN 形容为一个 minimax game （极大极小博弈），按照这种说法，GAN 要做的就是下面的这个任务：</p>
+
+<p>​     $\underset{G}{min}\underset{D}max V (D, G) = E_{x∼p_{data}(x)}[log D(x)] + E_{z∼p_z(z)}[log(1 − D(G(z)))]\ \ \ \ \ \ (1)$</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>这其实就是以上的两步训练过程，内层的最大化就是第一步，做的其实是最小化 $D(X)$ 与 $P(c</td>
+      <td>X)$ 的 cross entropy loss。外层的最小化就是第二步， 做的是在最小化 $E_{z∼p_z(z)}(1-P(c=1</td>
+      <td>G(z;\psi)))$ 。</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>以上的训练过程看起来很清晰，我们只需要两步就能得到真实数据的分布，但现实中却并非如此。</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>第一，我们的 generator 并不是一个真正的「生成样本」的分布，通常我们的用作 generator 的模型的 capacity 都是有限的，它很大可能只是生成了所谓「生成样本流形」中一个子流形。所以如果我们用这样的 generator 生成的样本和真实样本去训练 $D$ ，是不可能得到真正的 $P(c</td>
+      <td>X)$ 的，直觉上而言，因为这样的 discriminator 只能把一个子流形与真实样本模型分开，所以这个 discriminator 可能太「松」。</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>第二，$D$ 的 capacity 也有限。</p>
+
+<p>所以，在现实中，我们没法用两步优化就得到真实样本的概率分布。<em>Ian et all</em> 在论文里提出了一种交替优化的方法解决这个问题。</p>
+
+<p><img src="http://ww3.sinaimg.cn/large/0061BuRPgw1f8l5eb0zhnj30u80jm11u.jpg" alt="alt text" /></p>
+
+<p>这个算法其实就是：用 SGD ，先对做 k 步 equation (1) 内部最大化，再做外部的最小化。论文证明了这个算法在模型的 capacity 足够强，$D$ 每次优化都达到最优的时候，$G$ 学习到的概率分布收敛于真实分布。</p>
+
+<p>证明的具体过程在 <em>Ian et all</em> 的论文里写的很详细，这里不表。但这个证明中间还说明了一件事：如果训练中 $D$ 达到最优的话，那么 equation (1) 外部的 loss function （也是内部的最优化结果）就是 $p_{data}$ 和 $p_g$ 的 Jensen–Shannon divergence 的一个线性函数：</p>
+
+<p>$C(G) = -log(4)+2 · JSD \left (p_{data}\middle| p_g \right) $</p>
+
+<p>而 JSD 非负，且当且仅当在 $p_{data}$ 和 $p_g$ 相等时为0，所以此时这个 minimax game 达到最优。</p>
+
+<p>注意，这时得到的 $C(G)$ ，也即外部最小化的 loss function ，是关于 $G$ 的，对于不同的 $G$ 优化同一个 loss function 是无意义的，这也是我们交替进行最大化与最小化的目的：最大化得到当前 $G$ 对应的最好的 loss function ，然后最小化这个 loss function 得到更好的 $G$ 。</p>
+
+<blockquote>
+  <p>一点直觉: 关于 GAN 最有名的说法应该是「两个玩家进行博弈以期达到纳什均衡」，这或许是 “A” — adverserial 的来源。你尽可以这样想，也尽可以将以上的训练过程与<em>一些直觉</em> 里的例子进行类比—尽管他们不准确，但这多有趣：一个玩家完善他的伪装，另个玩家根据偶尔现形的他的行踪，升级自己的侦查系统；伪装者又根据试探、猜测和潜入，涂画他的伪装以对抗新型的侦察系统…模型可以很有趣，只要我们不看数学（误）。</p>
+</blockquote>
+
+<hr />
+
+<h3 id="section-2">关于参数更新</h3>
+
+<p>在原论文中，作者提到了 equation (1) 在训练式的 gradient vanishing 问题：</p>
+
+<p><img src="http://ww2.sinaimg.cn/large/0061BuRPgw1f8l85gz81oj30uk04rn1o.jpg" alt="alt text" /></p>
+
+<p>当训练刚开始时候，$D(G(z))$ 很小，这时候 $log(1-D(G(z)))$ 趋向饱和，而 $logD(G(z))$ 的导数却很可观，所以与其最小化 $log(1-D(G(z)))$ 不如最大化  $logD(G(z))$ 。</p>
+
+<p>Vanilla 版本的参数更新：</p>
+
+<p>$θ_{t+1}←θ_t-\epsilon_{t}\frac{\partial}{\partial\theta}𝔼_{z∼N}log(1-D(G(z;θ_t);ψ_{t+1}))$</p>
+
+<p>第二种参数更新方法：</p>
+
+<p>$θ_{t+1}←θ_t+\epsilon_{t}\frac{\partial}{\partial\theta}𝔼_{z∼N}log(D(G(z;θ_t);ψ_{t+1}))$</p>
+
+<blockquote>
+  <p>其中 $\theta_{t}$ 为 t 时刻的 $G$ 的参数，$\psi_t$ 为 t 时刻的 $D$ 的参数，$\epsilon_t$ 为 t 时刻的学习率</p>
+</blockquote>
+
+<p>在 Ferenc Huszár 的 <a href="http://www.inference.vc/an-alternative-update-rule-for-generative-adversarial-networks/">blog</a> 里，提出了第三种参数更新方法，就是将两种更新的 $\Delta_{t}$ 相加：</p>
+
+<p><img src="http://ww4.sinaimg.cn/large/0061BuRPgw1f8l90axux9j30qb02hglx.jpg" alt="alt text" /></p>
+
+<p>这样就避免了两端可能的 saturate 问题。而且 Ferenc 证明了，相对于第一种更新（在最小化 JSD），新的 $\Delta_t$ 其实在最小化 KLD。KLD 与 JSD 有一些相同的性质，比如非负和当且仅当两个分布相同时才为 0 ，所以新的 loss function 也是有意义的。</p>
+
+<p>另外，如果 $D$ 最后有一个 sigmoid 层输出概率的话，新的 loss function 其实是 score ，就是 sigmoid 层之前的输出，所以采用新的参数更新方法，还可以避免 sigmoid 的计算（我想是微不足道的）。</p>
+
+<hr />
+
+<h3 id="ebgan-to-be-supplemented">EBGAN (to be supplemented)</h3>
+
+<hr />
+
+<h3 id="info-gan-to-be-supplemented">Info-GAN (to be supplemented)</h3>
+
+<hr />
+
 
   </div>
 
@@ -80,7 +230,7 @@
 </article>
 
       </div>
-      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
     </div>
 
