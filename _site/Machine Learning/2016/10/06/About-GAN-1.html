@@ -79,10 +79,6 @@
 
 <p><img src="http://xm.xuelema.com/attached/image/20140523/20140523152438_5841.jpg" alt="alt text" /></p>
 
-<blockquote>
-  <p>credit to</p>
-</blockquote>
-
 <p>那么，你的知识里关于兔子的那一部分是什么呢？</p>
 
 <p>没准可以看做是一个函数。</p>
@@ -215,13 +211,98 @@
 
 <hr />
 
-<h3 id="ebgan-to-be-supplemented">EBGAN (to be supplemented)</h3>
+<h3 id="ebgan-energy-based-view-gan">EBGAN (energy-based view GAN)</h3>
+
+<p>Legun 的实验室九月放出了一篇论文：<a href="https://arxiv.org/abs/1609.03126">EBGAN</a> ，即 energy-based GAN ，意在从 energy 的角度来阐述 GAN 。图为它的 architecture：</p>
+
+<p><img src="http://ww3.sinaimg.cn/large/0061BuRPgw1f8m1an7z7sj30tx095gm6.jpg" alt="alt text" /></p>
+
+<p>EBGAN 的 $D$ 是一个 auto encoder ，其中 auto encoder 的误差就是所谓的 energy ，可以通过 Gibbs distribution 转化成概率分布。$D$ 的 loss function 如下：
+<script type="math/tex">f_{D}=E_{x\sim p_{data}}\left\lvert Dec(Enc(x)) - x\right\rvert + [m-E_{z\sim p_z}\left\lvert Dec(Enc(x)) - x\right\rvert]^+</script></p>
+
+<blockquote>
+  <p>$[·]^+$ 为 $max(·, 0)$</p>
+</blockquote>
+
+<p>其中的直觉是，训练这个 auto encoder 使其输出的能量函数对于两种样本有一个距离 ，这样的 loss function 有很多，上面的 margin loss 只是其中的一种，直观上讲，训练它等同于将能量在 [0, m] 中的不同类别的样本往不同的方向推，最小化真实样本的 energy 直到 0，最大化生成样本的 energy 直到 m，以此起到 「分辨」 两种样本的作用。</p>
+
+<blockquote>
+  <p>我不知道为什么用 auto encoder 来拟合这个能量函数，可能是因为对于某个分布来说，能量低的地方，样本就多一点，对于这些地方的样本的重建误差就少一点（ still not sure ）。</p>
+</blockquote>
+
+<p>因为 energy 可以通过 Gibbs distribution 转换成概率分布，所以 energy-based view 可以跟 probabilistic view 联系起来。如果用 energy 的观点来看 vanilla GAN 的话，那么原来的 loss function 的 margin 就是 $\inf$ ，它倾向于把真实样本的 energy 「推」到 $-\infty$ ，把生成样本的 energy 「推」到 $+\infty$ ，作者认为，这样的 margin 太松了，其实只要有一定的margin， $D$ 的作用就够了。</p>
+
+<p>关于 EBGAN ，Ferenc 将其他 GAN 的 energy 观点与其比较，认为 EBGAN 从本质上来说，并不比其他 GAN 更 energy-based ，同时他也不清楚 auto encoder 在这里起到了什么作用，而且作者并没有证明为什么拟合 $D$ 的 loss function 正好使得 $D$ 的输出是 energy。文章<a href="http://www.inference.vc/are-energy-based-gans-actually-energy-based/">在这</a>。</p>
+
+<p>值得一提的是，EBGAN 这篇论文提出了一个训练 $G$ 时的正则项，目的是为了让生成的样本更加多样化，直觉很简单，就是把一个 batch 里的所有样本通过 encoder 后得到的 code，取一个两两的 cos ，再取平均。这样当这个正则化项达到最小时，其实就是这些样本的 code 在 encoding space 最接近两两垂直的时候。这个正则化项长这样：</p>
+
+<p><img src="http://ww2.sinaimg.cn/large/0061BuRPgw1f8qxi5wzyyj30dt02bt8w.jpg" alt="alt text" /></p>
+
+<blockquote>
+  <p>Repelling Regularizer</p>
+
+  <p>顾名思义，batch 内的图片将会互相排斥，直到相互垂直。</p>
+</blockquote>
 
 <hr />
 
 <h3 id="info-gan-to-be-supplemented">Info-GAN (to be supplemented)</h3>
 
+<p>在 GAN 里，我们可以把一些服从一定先验的 latent code 转化成一张图片，<a href="https://github.com/jacotar/sound-GAN">一段音频</a> ，但这些 latent code 都是毫无意义的（至少在人类看来），那能不能通过某种训练，使得这些 latent code 有某种我们可以理解的意义？ Info-GAN 就做了这样的工作，它把一开始的 latent code 分为两部分，一部分满足一定先验，与 vanilla GAN 的latent code 相同，记为 $z$ ，另一部分就是我们想要的表示，记为 $c$ 。</p>
+
+<p>那么问题又来了，如果用原来的训练方法，GAN 完全可以学到跟 $c$ 毫无关系的分布，那么这时候把 latent code 分为两部分就毫无意义了。另一方面， GAN 是无监督的，如果有 label ，我们可能可以优化 $G$ ，使得 $c$ 正好代表样本的某个属性，比如，3D 人脸图片中的角度。但我们现在没有 label ，我们所能够做的，只有想办法让这些图片的属性在不同的 $c$ 下尽量区别开来，最好是 $c$ 的每个分量代表某种属性，当这个分量变化时，生成样本的属性也会随之连续变化。用文章中的话讲，就是让 $c$ 的各个分量 distangled with each other 。至于这样会学出什么属性，在训练前其实完全糊涂，但如果训练得当，$c$  的某个分量一定会学到最显著的那个维度，我觉得这取决于你给的样本的丰富度。</p>
+
+<p>Info-GAN 是从信息角度考虑的，如果 $c$ 真的是这个样本的一个理想的表示，那么从 $c$ 就可以得到样本，从样本也可以得到 $c$ ，换句话说，这两者之间拥有完全可逆的函数关系，这个时候 $c$ 与 $G(c, z;\psi)$ 之间的信息就是完全一样的（这当然是不可能的，因为 $z$ 也要起作用），换句话讲，此时 $I(c, G(c, z;\psi))$ 达到最大值。反过来，如果 $c$ 与 $G(c, z;\psi)$ 之间完全没有关系，那么此时 $I(c, G(c, z;\psi))$ 达到最小值 0 。所以这就给了我们一个直觉，只要最大化  这两者之间的互信息，就能得到与 $c$ 密切相关的生成样本。Info-GAN 将这个互信息作为正则项添加到了原来的 loss function 中：</p>
+
+<p><img src="http://ww4.sinaimg.cn/large/0061BuRPgw1f8qyx6s0hjj30kh01jmxd.jpg" alt="alt text" /></p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>那我们只需要一种可以计算 $I(c, G(c, z;\psi))$ 的途径就行了，这并不简单，因为我们需要计算 $P(c</td>
+      <td>X)$ ，而它是没法直接计算出来的，所以我们需要用 $Q(c</td>
+      <td>X)$ 来代替它，以获得 $I(c, G(c, z;\psi))$ 的一个下界：</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><img src="http://ww3.sinaimg.cn/large/0061BuRPgw1f8qzx0lp32j30q005ngnd.jpg" alt="alt text" /></p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>但内部的 expection 还是需要从 $P(c</td>
+      <td>X)$ sample 点，所以直接用个 <a href="https://www.wikiwand.com/en/Law_of_total_expectation">total exception theorem</a> ，就可以变成如下形式：</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><img src="http://ww1.sinaimg.cn/large/0061BuRPgw1f8r01r2jbwj30km03v0tj.jpg" alt="alt text" /></p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>而 $Q(c</td>
+      <td>x)$ 是可以通过 $D$ 再加上一个 softmax layer 来拟合的，所以我们可以直接对新的 $V_I$ 进行优化。因为我们只对 $D$ 上加了一个 softmax layer ，所以这个正则项几乎是 cost-free 的。</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Info-GAN 的效果如下：</p>
+
+<p><img src="http://ww2.sinaimg.cn/large/0061BuRPgw1f8r0k174inj30t70hrn1i.jpg" alt="alt text" /></p>
+
+<p>Ferenc 的 <a href="http://www.inference.vc/infogan-variational-bound-on-mutual-information-twice/">blog</a> 里也对 Info-GAN 做了一个 mini-review ，而且他将 vanilla GAN 也用最小化互信息的角度阐释了一遍。事实上，可以把传入 $D$ 的是否是真样本看做一个伯努利分布，并且也看做 $c$ 的一部分，记为 $t$ ，这时 $G$ 可以看做是原来的 generator 和真实样本的 sampler 之和 $G’$，当 $t$ 为 1 时就传入真实样本，$t$ 为 0 时就传入生成样本，这样通过最小化 $D$ 传出的 $I(x, t)$ 就可以达到与 vanilla GAN 相同的效果。注意在 Info-GAN 里我们是在最大化 $c$ 与 $X$ 的互信息，因为我们想得到一个和 $c$ 更相关的 $X$ ，但在 vanilla GAN 里我们想让 $G’$ 与 $t$ 更无关，所以要最小化互信息。这种观点下的 loss function 其实也可以写成 $I(t, X)-\lambda I(c, G(z, \psi))$ 。详情也可见 <a href="http://www.yingzhenli.net/home/blog/?p=421">李映真</a> 的 blog 。</p>
+
 <hr />
+
+<h3 id="feeling-lucky">Feeling Lucky</h3>
+
+<p>GAN 发展太快了，自从 <em>Ian et all</em> 2014 年发布第一篇 GAN 论文开始，有非常多相关研究业已面世，这次介绍的 EBGAN 和 Info-GAN 只是最近的代表。关于 GAN 的训练（如 <a href="https://arxiv.org/abs/1511.06434">DCGAN</a>），阐释，和应用层出不穷。因为 GAN 可以看做是提供了一种 non-trivial 的优化目标，所以作为生成模型应用可以很广泛，比如 <a href="http://t.cn/Rcg6aNU">音乐生成</a> ，<a href="http://t.cn/Rcds71a">文本生成</a>，<a href="http://t.cn/RcAxwgO">Style-Structure GAN</a> ，<a href="http://t.cn/Rco2RgI">SRGAN</a> 。因为 GAN 受计算能力限制，生成高分辨率的图像很难（ EBGAN 可以生成 256 x 256 的图片），所以有人提出可以生成一些低分辨率的图像进行合成以得到高分辨率图片，这就是 <a href="https://arxiv.org/abs/1506.05751">Deep Generative Image Models using a Laplacian Pyramid of Adversarial Networks</a> 的方法。</p>
+
+<p>先这样吧。</p>
+
+<p><a href="zardinality.github.io">回到首页</a></p>
 
 
   </div>
