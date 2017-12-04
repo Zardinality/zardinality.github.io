@@ -339,6 +339,7 @@ pre {
   text-indent: 2px;
 }
 .postContent {
+  // font-size: 16px;  
   padding-top: 3.5em;
   text-align: center;
 }
@@ -540,6 +541,7 @@ pre {
  * Page content
  */
 .page-content {
+  font-size: 10px;  
   padding: 0;
 }
 .page-heading {
@@ -582,7 +584,7 @@ pre {
   margin-bottom: $spacing-unit;
   padding-bottom: 3em !important;
   p {
-    font-size: 1.5rem;
+    font-size: 1.0rem;
   }
   h2 {
     font-size: 32px;
