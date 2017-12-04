@@ -8,5 +8,10 @@ nav: true
 order: 1
 
 ---
-
-I am now a junior student in Zhejiang University. My research interests lie on generative model and computer vision.
+<!-- ![My individual painting](http://wx4.sinaimg.cn/large/0061BuRPly8fh1aa1vj3xj30ro0rot8s.jpg) -->
+<div align="center">
+<img src="http://wx4.sinaimg.cn/large/0061BuRPly8fh1aa1vj3xj30ro0rot8s.jpg" width="400" height="400" alt="My individual painting"/>
+</div>
+<div align="center">
+My individual painting(for amusing)
+</div>
