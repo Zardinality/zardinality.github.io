@@ -10,6 +10,6 @@ I am now a junior student in Zhejiang University. I did an internship in [VIPA](
 
 My research interests lie on generative model and computer vision.
 
-I write [blogs]({{ site.url }}/blogs/) occasionally. Here are my [publication list]({{ site.url }}/publications) and [CV]({{ site.url }}/static/resume_cv.pdf).
+I write [blogs]({{ site.url }}/blogs/) in Chinese occasionally. Here are my [publication list]({{ site.url }}/publications) and [CV]({{ site.url }}/static/resume_cv.pdf).
 
 I am also interested in reading source code of tensorflow, welcome to discuss problems regarding to it with me.
