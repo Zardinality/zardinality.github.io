@@ -13,5 +13,5 @@ order: 1
 <img src="http://wx4.sinaimg.cn/large/0061BuRPly8fh1aa1vj3xj30ro0rot8s.jpg" width="400" height="400" alt="My individual painting"/>
 </div>
 <div align="center">
-My individual painting(for amusing)
+My individual painting(for your amusement)
 </div>
